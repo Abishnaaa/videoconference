@@ -1,0 +1,137 @@
+body {
+    font-family: robot,lato !important;
+    font-size: large;
+}
+ul{
+    list-style-type:none;
+    margin:0;
+    padding: 0;
+}
+
+.logo {
+    height: 43px;
+}
+
+.navbar-brand {
+    font-size: 27px;
+    padding-left: 10px;
+    font-family: 'Lato', sans-serif;
+    color: grey !important;
+}
+
+.nav-link{
+    font-size: 16px;
+    padding: 0 10px;
+    font-weight: 600;
+    color: grey !important;
+}
+
+.display-centre{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.people{
+    height: 390px;
+    border: 25px solid white;
+    border-radius: 5px;
+    box-shadow: 1px 1px 5px grey;
+}
+textarea:focus, input:focus{
+    outline: none;
+}
+
+.jumbotron{
+    background-color: white;
+
+}
+
+.cursor-pointer{
+    cursor: pointer;
+    padding:5px
+}
+/*index.html*/
+.home-wrap{
+    background-color: rgb(31,30,30);
+}
+
+.g-top{
+    height: 89vh;
+    position: relative;
+}
+
+.video-wrap{
+    height: 600px;
+}
+
+.video-wrap>*{
+   flex:1 1 250px;
+   border: 1px solid white;
+}
+
+.g-top-left{
+    position: absolute;
+    right: 0;
+    height: 8vh;
+    top:0;
+    border-bottom-left-radius: 10px;
+}
+
+.top-left-participant-wrap{
+    position: relative;
+}
+
+.cursor-pointer:hover{
+    cursor: pointer;
+    background-color: grey;
+    border-radius:5px;
+    padding:5px;
+}
+
+.top-left-participant-count{
+    position: relative;
+    top: -2px;
+    right: -3px;
+    font-size: 15px;
+
+}
+
+.g-bottom{
+    padding: 0 20px;
+    box-shadow: 0 0 5px black;
+    z-index: 2;
+}
+
+.bottom-left{
+    position: relative;
+    padding: 5px;
+}
+.option-wrap {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 10vh; /* Ensure height is consistent */
+    position: relative;
+}
+
+.option-icon {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.action-icon-style{
+height: 40px;
+width: 40px;
+border: 1px solid lightgrey;
+border-radius: 50%;
+font-size: 8px !important;
+
+
+}
+
+.end-call-wrap{
+    -ms-transform: rotate(135deg);
+    transform: rotate(135deg);
+}
