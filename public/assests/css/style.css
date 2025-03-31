@@ -60,14 +60,15 @@ textarea:focus, input:focus{
     height: 89vh;
     position: relative;
 }
-
-.video-wrap{
+.video-wrap {
     height: 600px;
+    
 }
 
-.video-wrap>*{
-   flex:1 1 250px;
-   border: 1px solid white;
+.video-wrap > * {
+    flex: 1 1 250px;
+    border: 1px solid white;
+   
 }
 
 .g-top-left{
@@ -134,4 +135,16 @@ font-size: 8px !important;
 .end-call-wrap{
     -ms-transform: rotate(135deg);
     transform: rotate(135deg);
+}
+
+.top-remote-video-show-wrap{
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+}
+
+
+video {
+    border: 1px solid grey;
+    width: 300px;
 }

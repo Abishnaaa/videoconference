@@ -30,7 +30,7 @@
     <main class="display-flex flex-column home-wrap">
         <div class="g-top text-light">
             <div class="top-remote-video-show-wrap d-flex">
-                <div id="meeting-Container" class="w-5 d-none">
+                <div id="meetingContainer" class="w-5" style="display: none;">
 
                 <div class="call-wrap" style="background-color: black;">
                     <div class="video-wrap" id="divUsers" style="display: flex; flex-wrap: wrap;">
@@ -44,7 +44,7 @@
                             <h2 class="display-center" style="font-size: 14px;"></h2>
                             <div class="display-center">
                                 <video autoplay muted></video>
-                                <audio autoplay muted controls style="display:none"></audio>
+                                <audio autoplay controls style="display:none"></audio>
                             </div>
                         </div>
 
@@ -70,23 +70,25 @@
             </div>
             <div class="bottom-middle d-flex justify-content-center align-items-center " style="height: 10vh;">
             <div class="mic-toggle-wrap action-icon-style display-center mr-2 cursor-pointer" id="miceMuteUnmute">
-                <span class="material-icons">mic_off</span>
+                <span class="material-icons" style="width: 100%;">mic_off</span>
             </div>
             <div class="end-call-wrap action-icon-style display-center mr-2 cursor-pointer">
                 <span class="material-icons text-danger">call</span>
             </div>
-            <div class="video-toggle-wrap action-icon-style display-center cursor-pointer"><span class="material-icons">videocam_off</span></div>
+            <div class="video-toggle-wrap action-icon-style display-center cursor-pointer" style="width: 100%;" id="videoCamOnOff"><span class="material-icons">videocam_off</span></div>
         </div>
-            <div class="bottom-right justify-content-between d-flex align-items-center mr-3" style="height: 10vh;">
-                <div class="present-now-wrap d-flex justify-content-center align-items-center mr-5 flex-column cursor-pointer"><span class="material-icons">present_to_all</span>
-                    <div >
-                        Present Now
-                    </div>
+        <div class="bottom-right justify-content-between d-flex align-items-center mr-3" style="height: 10vh;">
+            <div class="present-now-wrap d-flex justify-content-center align-items-center mr-5 flex-column cursor-pointer" id="btnScreenShare">
+                <span class="material-icons">present_to_all</span>
+                <div>Present Now</div>
+            </div>
+        
+            <div class="option-wrap display-center cursor-pointer" style="height: 10vh; position:relative" id="optionsButton">
+                <div class="option-icon">
+                    <span class="material-icons">more_vert</span>
                 </div>
-               
-                <div class="option-wrap display-center  cursor-pointer " style="height: 10vh; position:relative">
-            <div class="option-icon"><span class="material-icons">more_vert</span></div></div></div>
+            </div>
         </div>
-    </main>
+        
 </body>
 </html>

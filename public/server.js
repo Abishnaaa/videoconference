@@ -5,7 +5,7 @@ var server=app.listen(3000,function(){
     console.log("Listening on port 3000");
 });
 const io =require("socket.io")(server,{
-    allowEI03: true,
+    allowEIO3: true,
 });
 app.use(express.static(path.join(__dirname,"")));
 userConnections=[];
@@ -14,7 +14,7 @@ io.on("connection",(socket)=>{
     console.log("socket id is",socket.id);
     socket.on("userconnect",(data)=>{
         console.log("userconnect",data.displayName,data.meetingid);
-        var other_uders=userConnections.filter((p)=>p.meeting_id==data.meetingid)
+        var other_users=userConnections.filter((p)=>p.meeting_id==data.meetingid)
         userConnections.push({
             connectionId:socket.id,
             user_id: data.displayName,
@@ -27,6 +27,7 @@ io.on("connection",(socket)=>{
                 connId:socket.id,
             });
         })
+        socket.emit("inform_me_about_other_user",other_users );
     });
     socket.on("SDPProcess",(data)=>{
         socket.to(data.to_connid).emit("SDPProcess",{

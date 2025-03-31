@@ -4,9 +4,151 @@ var AppProcess=(function(){
     var serverProcess;
     var remote_aud_stream=[];
     var remote_vid_stream=[];
+    var local_div;
+    var audio;
+    var isAudioMute=true;
+    var rtp_aud_senders=[];
+    var video_states={
+        None:0,
+        Camera:1,
+        ScreenShare:2
+    }
+    var rtp_vid_senders=[];
+    var videoCamTrack;
+    var video_st=video_states.None;
     async function _init( SDP_function,my_connid){
         serverProcess=SDP_function;
         my_connection_id=my_connid;
+        eventProcess();
+        local_div=document.getElementById("localVideoPlayer");
+    }
+    function eventProcess(){
+        $("#miceMuteUnmute").on("click",async function() {
+            if(!audio){
+                await loadAudio();
+            }
+            if(!audio){
+                    alert("permission not given");
+                    return;
+            }
+            if(isAudioMute){
+                audio.enabled=true;
+                $("#miceMuteUnmute").html("<span class='material-icons' style='width: 100%;'>mic_on</span>");
+                updateMediaSenders(audio,rtp_aud_senders);
+            }else{
+                audio.enabled=false;
+                $("#miceMuteUnmute").html("<span class='material-icons' style='width: 100%;'>mic_off</span>");;
+                removeMediaSenders(audio,rtp_aud_senders);
+            }
+            isAudioMute=!isAudioMute;
+        });
+        $("#videoCamOnOff").on("click",async function(){
+            if(video_st==video_states.Camera){
+                await videoProcess(video_states.None);
+            }else{
+                await videoProcess(video_states.Camera);
+            }
+        
+            
+        })
+        $("#btnScreenShare").on("click",async function(){
+            if(video_st==video_states.ScreenShare){
+                await videoProcess(video_states.None);
+            }else{
+                await videoProcess(video_states.ScreenShare);
+            }
+        
+            
+        })
+    }
+    async function loadAudio() {
+        try{
+            var astream=await navigator.mediaDevices.getUserMedia({
+                video:false,
+                audio:true
+            });
+            audio=astream.getAudioTracks()[0];
+            audio.enabled=false;
+        }catch(e){
+            console.log(e);
+        }
+        
+    }
+    function connection_status(connection){
+        if(connection &&(connection.connectionState=="new"||connection.connectionState=="connecting"||connection.connectionState=="connected"))
+    {return true;}else{
+        return false;
+    }}
+    async function updateMediaSenders(track,rtp_senders) {
+        for (var con_id in peers_connection_ids){
+            if(connection_status(peers_connection[con_id])){
+                if(rtp_senders[con_id]&& rtp_senders[con_id].track){
+                    rtp_senders[con_id].replaceTrack(track);
+                }else{
+                    rtp_senders[con_id]=peers_connection[con_id].addTrack(track); 
+                }
+            }
+        }
+    }
+    function removeMediaSenders(rtp_senders){
+        for (var con_id in peers_connection_ids){
+            if(rtp_senders[con_id] && connection_status(peers_connection[con_id])){
+                peers_connection[con_id].removeTrack(rtp_senders[con_id]);
+                rtp_senders[con_id]=null;
+            }
+        }
+    }
+    function removeVideoStream(rtp_vid_senders){
+        if(videoCamTrack){
+            videoCamTrack.stop();
+            videoCamTrack=null;
+            local_div.srcObject=null;
+            removeMediaSenders(rtp_vid_senders);
+        }
+    }
+    async function videoProcess(newVideoState) {
+        if(newVideoState==video_states.None){
+            $("#videoCamOnOff").html("<span class='material-icons' style='width: 100%;'>videocam_off</span>");
+            $("#btnScreenShare").html("<span class='material-icons' style='width: 100%;'>present_to_all</span>");
+        video_st=newVideoState;
+        removeVideoStream(rtp_vid_senders);
+        return;}
+        if(newVideoState==video_states.Camera){
+            $("#videoCamOnOff").html("<span class='material-icons' style='width: 100%;'>videocam_on</span>");
+        }
+        try{
+        var vstream=null;
+        if(newVideoState==video_states.Camera){
+           
+           vstream= await navigator.mediaDevices.getUserMedia({
+                video:{
+                    width:1920,
+                    height:1680
+                },audio:false
+            });
+        }else if(
+            newVideoState==video_states.ScreenShare
+        ){
+           vstream= await navigator.mediaDevices.getDisplayMedia({
+                video:{
+                    width:1920,
+                    height:1680
+                },audio:false
+            });
+        } if(vstream && vstream.getVideoTracks().length>0){
+            videoCamTrack=vstream.getVideoTracks()[0];
+            if(videoCamTrack){
+                local_div.srcObject=new MediaStream([videoCamTrack]);
+                updateMediaSenders(videoCamTrack,rtp_vid_senders);
+            }
+        } }catch(e){
+            console.log(e);
+            return;
+        }
+       video_st=newVideoState; 
+       if(newVideoState==video_states.Camera ){
+        
+       }
     }
     const iceConfiguration = {
         iceServers: [
@@ -47,7 +189,7 @@ async function setConnection(connid){
         if(event.track.kind =="video"){
             remote_vid_stream[connid].getVideoTracks().forEach((t)=>remote_vid_stream[connid].removeTrack(t));
             remote_vid_stream[connid].addTrack(event.track);
-            var remoteVideoPlayer=document.getElementById("a_"+connid);
+            var remoteVideoPlayer=document.getElementById("v_"+connid);
             remoteVideoPlayer.srcObject=null;
             remoteVideoPlayer.srcObject=remote_vid_stream[connid];
             remoteVideoPlayer.load();
@@ -56,7 +198,7 @@ async function setConnection(connid){
         else if(event.track.kind =="audio"){
             remote_aud_stream[connid].getAudioTracks().forEach((t)=>remote_aud_stream[connid].removeTrack(t));
             remote_aud_stream[connid].addTrack(event.track);
-            var remoteAudioPlayer=document.getElementById("v_"+connid);
+            var remoteAudioPlayer=document.getElementById("a_"+connid);
             remoteAudioPlayer.srcObject=null;
             remoteAudioPlayer.srcObject=remote_aud_stream[connid];
             remoteAudioPlayer.load();
@@ -65,6 +207,10 @@ async function setConnection(connid){
     }
     peers_connection_ids[connid]=connid;
     peers_connection[connid]=connection;
+    if(video_st==video_states.Camera||video_st==video_states.ScreenShare){
+        if(videoCamTrack){
+    updateMediaSenders(videoCamTrack,rtp_vid_senders);
+    }}
     return connection; 
 }
 async function setOffer(connid){
@@ -85,11 +231,21 @@ async function SDPProcess(message,from_connid){
         var answer=await peers_connection[from_connid].createAnswer();
         await peers_connection[from_connid].setLocalDescription(answer);
         serverProcess(JSON.stringify({answer:answer}),from_connid);}
+        else if(message.icecandidate){
+            if(!peers_connection[from_connid]){
+                await setConnection(from_connid);
+            }
+            try{
+                await peers_connection[from_connid].addIceCandidate(message.icecandidate);
 
+            }catch(e){
+                console.log(e); 
+            }
+        }
     }
     return{
         setNewConnection:async function(connId){
-            await setConnection(connid);
+            await setConnection(connId);
         },
         init:async function(SDP_function,my_connid){
             _init(SDP_function, my_connid);
@@ -118,6 +274,9 @@ async function SDPProcess(message,from_connid){
     function init(uid,mid){
         user_id=uid;
         meeting_id=mid
+        $("#meetingContainer").show();
+        $("#me h2").text(user_id+"(Me)");
+        document.title=user_id;
         event_process_for_signalling_server();
     }
     
@@ -136,7 +295,7 @@ async function SDPProcess(message,from_connid){
                 if(user_id!="" && meeting_id!=""){
                     socket.emit('userconnect',{
                         displayName: user_id,
-                        meeting_id:meetingid
+                        meetingid:meeting_id
                     })
                 }
             }
@@ -145,12 +304,19 @@ async function SDPProcess(message,from_connid){
             addUser(data.other_user_id,data.connId);
             AppProcess.setNewConnection(data.connId);
         });
+        socket.on("inform_me_about_other_user",function(other_users){
+            if(other_users){
+                for(var i=0;i<other_users.length;i++){
+                    addUser(other_users[i].user_id,other_users[i].connectionId);
+                    AppProcess.setNewConnection(other_users[i].connectionId);}}
+            
+        });
         socket.on("SDPProcess", async function(data){
             await AppProcess.processClientFunc(data.message,data.from_connid);
         })
     }
     function addUser(other_user_id,connId){
-        var newDivId=$("otherTemplate").clone();
+        var newDivId=$("#otherTemplate").clone();
         newDivId= newDivId.attr("id",connId).addClass("other");
         newDivId.find("h2").text(other_user_id);
         newDivId.find("video").attr("id","v_"+connId);
