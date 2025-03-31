@@ -151,3 +151,16 @@ video {
     border: 1px solid grey;
     width: 300px;
 }
+.top-box{
+    background-color: rgb(14,6,6);
+    position: fixed;
+    width:30%;
+    height: 30%;
+    top:20.5%;
+    left:35.5%;
+    display: block;
+    box-shadow:0 0 5px white;
+    z-index:999;
+    columns:white;
+    border: 5px solid white;
+}
