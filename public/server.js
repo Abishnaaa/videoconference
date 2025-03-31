@@ -69,6 +69,24 @@ io.on("connection", (socket) => {
             })
         }
     });
+    socket.on("fileTransferToOther",function(msg){
+        console.log(msg);
+        var mUser=userConnections.find((p)=>p.connectionId==socket.id);
+        if(mUser){
+            var meetingid=mUser.meeting_id;
+            var from=mUser.user_id;
+            var list=userConnections.filter((p)=>p.meeting_id==meetingid);
+            list.forEach((v)=>{
+                socket.to(v.connectionId).emit("showFileMessage",{
+                    username:msg.username,
+                    meetingid:msg.meetingid,
+                    filePath:msg.filePath,
+                    fileName:msg.fileName,
+                });
+            });
+        }
+
+    })
     socket.on("disconnect", function() {
         console.log("Disconnected");
         var disUser = userConnections.find((p) => p.connectionId == socket.id);

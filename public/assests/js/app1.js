@@ -379,6 +379,16 @@ async function SDPProcess(message,from_connid){
             var div=$("<div>").html("<span class='font-weight-bold mr-3' style='color:black'>"+data.from+"</span>"+lTime+"</br>"+data.message);
             $("#messages").append(div);
         });
+        socket.on("showFileMessage",function(data){
+            var time= new Date();
+            var lTime=time.toLocaleString("en-US",{
+                hour:"numeric",
+                minute:"numeric",
+                hour12:true
+            })
+            var attachFileAreaForOther=document.querySelector(".show-attach-file");
+            attachFileAreaForOther.innerHTML+="<div class='left-align' style='display:flex; align-items:center;'><img src='./assests/images/other.jpg' style='height:40px;width:40px;' class='caller-image circle'><div style='font-weight:600;margin:0 5px;'>"+data.username+"</div>:<div><a style='color:#0077bff;' href='"+data.filePath+"'download>"+data.fileName+"</a></div><d/div><br/>";
+        });
     }
     function eventHandling(){
         $("#btnsend").on("click",function(){
@@ -458,15 +468,7 @@ async function SDPProcess(message,from_connid){
      }) ;
 
      
-     $(document).mouseup(function(e){
-        var container= new Array();
-        container.push($(".g-right-details-wrap"));
-        $.each(container,function(key,value){
-            if(!$(value).is(e.target)&& $(value).has(e.target.length==0)){
-                $(value).hide(300);
-            }
-        });
-     }) ;
+  
      $(document).on("click",".call-cancel-action",function(){
         $(".top-box-show").html('');
      })
@@ -511,7 +513,19 @@ async function SDPProcess(message,from_connid){
             console.log(error);
         },
     });
+    var attachFileArea=document.querySelector(".show-attach-file");
+    var attachFileName=$("#customFile").val().split("\\").pop();
+    var attachFilePath="public/attachment/"+meeting_id+"/"+attachFileName;
+    attachFileArea.innerHTML+="<div class='left-align' style='display:flex; align-items:center;'><img src='./assests/images/other.jpg' style='height:40px;width:40px;' class='caller-image circle'><div style='font-weight:600;margin:0 5px;'>"+user_id+"</div>:<div><a style='color:#0077bff;' href='"+attachFilePath+"'download>"+attachFileName+"</a></div><d/div><br/>";
+    $("label.custom-file-label").text("");
+    socket.emit("fileTransferToOther",{
+        username:user_id,
+        meetingid:meeting_id,
+        filePath:attachFilePath,
+        fileName:attachFileName,
     });
+    });
+  
     $(document).on("click",".g-details-heading-attachment",function(){
         $(".g-details-heading-show").hide();
         $(".g-details-heading-show-attachment").show();
@@ -526,6 +540,89 @@ async function SDPProcess(message,from_connid){
         $(".g-details-heading-attachment").removeClass("active");
     })
 
+    $(document).on("click", ".option-icon", function() {
+        $(".recording-show").toggle(300);
+    });
+    
+    $(document).on("click", ".start-record", function() {
+        $(".start-record").removeClass().addClass("stop-record btn-danger text-dark").text("Stop Recording");
+        startRecording();
+    });
+    
+    $(document).on("click", ".stop-record", function() {
+        if (mediaRecorder && mediaRecorder.state === "recording") {
+            $(".stop-record").removeClass().addClass("start-record btn-danger text-dark").text("Start Recording");
+            mediaRecorder.stop();
+        } else {
+            alert("No active recording to stop.");
+        }
+    });
+    
+    var mediaRecorder;
+    var chunks = [];
+    
+    async function captureScreen(mediaConstraints = { video: true }) {
+        try {
+            const screenStream = await navigator.mediaDevices.getDisplayMedia(mediaConstraints);
+            return screenStream;
+        } catch (err) {
+            console.error("Screen capture failed:", err);
+            alert("Screen capture permission denied or not supported.");
+            throw err;
+        }
+    }
+    
+    async function captureAudio(mediaConstraints = { audio: true }) {
+        try {
+            const audioStream = await navigator.mediaDevices.getUserMedia(mediaConstraints);
+            return audioStream;
+        } catch (err) {
+            console.error("Audio capture failed:", err);
+            alert("Audio capture permission denied or not supported.");
+            throw err;
+        }
+    }
+    
+    async function startRecording() {
+        try {
+            const screenStream = await captureScreen();
+            const audioStream = await captureAudio();
+    
+            // Correct way to merge tracks into a single stream
+            const combinedStream = new MediaStream([
+                ...screenStream.getTracks(),
+                ...audioStream.getTracks()
+            ]);
+    
+            mediaRecorder = new MediaRecorder(combinedStream);
+            mediaRecorder.start();
+    
+            mediaRecorder.ondataavailable = function(e) {
+                chunks.push(e.data);
+            };
+    
+            mediaRecorder.onstop = function() {
+                const clipName = prompt("Enter a name for your recording:");
+                combinedStream.getTracks().forEach((track) => track.stop());
+    
+                const blob = new Blob(chunks, { type: "video/webm" });
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                a.style.display = "none";
+                a.href = url;
+                a.download = (clipName || "recording") + ".webm";
+                document.body.appendChild(a);
+                a.click();
+                setTimeout(() => {
+                    document.body.removeChild(a);
+                    window.URL.revokeObjectURL(url);
+                }, 100);
+            };
+        } catch (err) {
+            console.error("Error starting recording:", err);
+            alert("Failed to start recording. Please check permissions.");
+        }
+    }
     
     return {
         _init: function(uid,mid){
