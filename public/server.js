@@ -60,7 +60,7 @@ io.on("connection", (socket) => {
             var from=mUser.user_id;
             var list=userConnections.filter((p)=>p.meeting_id==meetingid);
             list.forEach((v)=>{
-                io.to(v.connectionId).emit("showChatMessage",{
+                socket.to(v.connectionId).emit("showChatMessage",{
                     from:from,
                     message:msg,
                 })
