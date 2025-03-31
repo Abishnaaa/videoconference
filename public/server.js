@@ -7,6 +7,8 @@ var server = app.listen(3000, function() {
 const io = require("socket.io")(server, {
     allowEIO3: true,
 });
+const fs=require('fs');
+const fileUpload=require("express-fileupload");
 
 // Serve static files from the root directory
 app.use(express.static(path.join(__dirname, "")));
@@ -84,3 +86,21 @@ io.on("connection", (socket) => {
         }
     });
 });
+app.use(fileUpload());
+app.post("/attaching",function(req,res){
+    var data=req.body;
+    var imageFile=req.files.zipfile;
+    console.log(imageFile);
+    var dir="public/attachment/"+data.meeting_id+'/';
+    if(!fs.existsSync(dir)){
+        fs.mkdirSync(dir);
+    }
+    imageFile.mv("public/attachment/"+data.meeting_id+"/"+imageFile.name,function(error){
+        if(error){
+            console.log("couldnt upload the image file,error",error);
+
+        }else{
+             console.log("file uploaded sucessfully");
+        }
+    })
+})

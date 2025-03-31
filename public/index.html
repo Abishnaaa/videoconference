@@ -113,8 +113,8 @@
         <div class="top-left-time-wrap"></div></div>
         <div class="g-bottom bg-light m-0 d-flex justify-content-between align-items-center">
             <div class="bottom-left" style="height:10vh">
-                <div class="g-details border border-success mb-2">
-                    <div class="g-details-heading d-flex justify-content-center align-items-center border-bottom">
+                <div class="g-details border border-success mb-2" style="display: none;min-height: 19.5vh;">
+                    <div class="g-details-heading pb-1 d-flex justify-content-center align-items-center border-bottom">
                         <div class="g-details-heading-detail d-flex align-items-center justify-content-center cursor-pointer mr-2">
                             <span class="material-icons" style="margin-top: -5px;">error</span> Details
                         </div>
@@ -128,6 +128,20 @@
                             <div style="font-weight:600;color:grey">Joining Info</div>
                             <div style="font-weight:600;color:grey" class="meeting_url">Joining Info</div>
                             <div style="cursor: pointer;"><span class="material-icons" style="font-size:14px">content_copy</span><span class="copy_info font-weight-bold">Copy Joining Info<span style="display: none;background-color: aquamarine; border-radius: 5px;" class="link-conf font-weight-bold p-1">Link Copied</span></span></div>
+                        </div>
+                        <div class="g-details-heading-show-attachment" style="display: none;position: relative;">
+                            <div class="show-attach-file"></div>
+                            <div class="upload-attach-file">
+                                <form style="justify-content: space-between;" enctype="multipart/form-data" ref="uploadForm" class="display-center pt-1" id="uploadForm">
+                                    <div class="custom-file" style="flex-basis:79%">
+                                        <input type="file" class="custom-file-input" id="customFile" name="imageFile">
+                                        <label for="customFile" class="custom-file-label">Choose File</label>
+                                    </div>
+                                    <div class="share-button-wrap">
+                                        <button class="btn-primary btn-sm share-attach" style="flex-basis:19%;padding:6px 20px;">Share</button>
+                                    </div>
+                                </form>
+                            </div>
                         </div>
                     </div>
                     

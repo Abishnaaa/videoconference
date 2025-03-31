@@ -396,6 +396,10 @@ async function SDPProcess(message,from_connid){
         });
         var url=window.location.href;
         $(".meeting_url").text(url);
+
+        $("#divUsers").on("dblclick","video",function(){
+            this.requestFullscreen();
+        })
     }
 
 
@@ -452,7 +456,17 @@ async function SDPProcess(message,from_connid){
             }
         });
      }) ;
-        
+
+     
+     $(document).mouseup(function(e){
+        var container= new Array();
+        container.push($(".g-right-details-wrap"));
+        $.each(container,function(key,value){
+            if(!$(value).is(e.target)&& $(value).has(e.target.length==0)){
+                $(value).hide(300);
+            }
+        });
+     }) ;
      $(document).on("click",".call-cancel-action",function(){
         $(".top-box-show").html('');
      })
@@ -467,6 +481,51 @@ async function SDPProcess(message,from_connid){
         setTimeout(function(){
             $(".link-conf").hide();},3000);
         })
+    $(document).on("click",".meeting-details-button",function(){
+        $(".g-details").slideToggle(300);
+    });
+    var base_url=window.location.origin;
+    $(document).on("change", ".custom-file-input", function () {
+        var fileName = $(".custom-file-input").val().split("\\").pop();
+        $(".custom-file-input").next(".custom-file-label").text(fileName);
+    });
+    
+    $(document).on("click",".share-attach",function(e){
+    e.preventDefault();
+    var att_img=$("#customFile").prop('files')[0];
+    var formData= new FormData();
+    formData.append("zipfile",att_img);
+    formData.append("meeting_id",meeting_id);
+    formData.append('username',user_id);
+    console.log(formData);
+    $.ajax({
+        url:base_url+"/attaching",
+        type:"POST",
+        data:formData,
+        contentType:false,
+        processData:false,
+        success:function(response){
+            console.log(response);
+        },
+        error:function(response){
+            console.log(error);
+        },
+    });
+    });
+    $(document).on("click",".g-details-heading-attachment",function(){
+        $(".g-details-heading-show").hide();
+        $(".g-details-heading-show-attachment").show();
+        $(".g-details-heading-attachment").addClass("active");
+        $(".g-details-heading-detail").removeClass("active");
+    })
+
+    $(document).on("click",".g-details-heading-detail",function(){
+        $(".g-details-heading-show-attachment").hide();
+        $(".g-details-heading-show").show();
+        $(".g-details-heading-detail").addClass("active");
+        $(".g-details-heading-attachment").removeClass("active");
+    })
+
     
     return {
         _init: function(uid,mid){
