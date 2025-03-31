@@ -25,7 +25,10 @@ ul{
     font-weight: 600;
     color: grey !important;
 }
-
+.active{
+    background-color: #00808047;
+    border-radius:5px;
+}
 .display-center{
     display: flex;
     justify-content: center;
@@ -91,7 +94,7 @@ textarea:focus, input:focus{
 }
 
 .top-left-participant-count{
-    position: relative;
+    position: absolute;
     top: -2px;
     right: -3px;
     font-size: 15px;
