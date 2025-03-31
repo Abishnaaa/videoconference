@@ -1,52 +1,67 @@
-const express=require("express");
-const path =require("path");
-var app=express();
-var server=app.listen(3000,function(){
+const express = require("express");
+const path = require("path");
+var app = express();
+var server = app.listen(3000, function() {
     console.log("Listening on port 3000");
 });
-const io =require("socket.io")(server,{
+const io = require("socket.io")(server, {
     allowEIO3: true,
 });
-app.use(express.static(path.join(__dirname,"")));
-userConnections=[];
 
-io.on("connection",(socket)=>{
-    console.log("socket id is",socket.id);
-    socket.on("userconnect",(data)=>{
-        console.log("userconnect",data.displayName,data.meetingid);
-        var other_users=userConnections.filter((p)=>p.meeting_id==data.meetingid)
+// Serve static files from the root directory
+app.use(express.static(path.join(__dirname, "")));
+
+// This is a backup to also serve from public if needed
+app.use(express.static(path.join(__dirname, "public")));
+
+// Ensure HTML files can be accessed directly
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'action.html'));
+});
+
+app.get('/index.html', (req, res) => {
+    res.sendFile(path.join(__dirname, 'index.html'));
+});
+
+userConnections = [];
+
+io.on("connection", (socket) => {
+    console.log("socket id is", socket.id);
+    socket.on("userconnect", (data) => {
+        console.log("userconnect", data.displayName, data.meetingid);
+        var other_users = userConnections.filter((p) => p.meeting_id == data.meetingid)
         userConnections.push({
-            connectionId:socket.id,
+            connectionId: socket.id,
             user_id: data.displayName,
             meeting_id: data.meetingid,
         });
 
-        other_users.forEach((v)=>{
-            socket.to(v.connectionId).emit("inform_others_about_me",{
-                other_user_id:data.displayName,
-                connId:socket.id,
+        other_users.forEach((v) => {
+            socket.to(v.connectionId).emit("inform_others_about_me", {
+                other_user_id: data.displayName,
+                connId: socket.id,
             });
         })
-        socket.emit("inform_me_about_other_user",other_users );
+        socket.emit("inform_me_about_other_user", other_users);
     });
-    socket.on("SDPProcess",(data)=>{
-        socket.to(data.to_connid).emit("SDPProcess",{
-            message:data.message,
-            from_connid:socket.id,
+    socket.on("SDPProcess", (data) => {
+        socket.to(data.to_connid).emit("SDPProcess", {
+            message: data.message,
+            from_connid: socket.id,
         })
     })
-    socket.on("disconnect", function(){
+    socket.on("disconnect", function() {
         console.log("Disconnected");
-        var disUser=userConnections.find((p)=>p.connectionId==socket.id);
-        if(disUser){
-            var meetingid=disUser.meeting_id;
-            userConnections=userConnections.filter((p)=>p.connectionId!=socket.id);
-            var list=userConnections.filter((p)=>p.meeting_id==meetingid);
+        var disUser = userConnections.find((p) => p.connectionId == socket.id);
+        if (disUser) {
+            var meetingid = disUser.meeting_id;
+            userConnections = userConnections.filter((p) => p.connectionId != socket.id);
+            var list = userConnections.filter((p) => p.meeting_id == meetingid);
             list.forEach((v) => {
-                io.to(v.connectionId).emit("inform_other_about_disconnected_user",{
-                    connId:socket.id
+                io.to(v.connectionId).emit("inform_other_about_disconnected_user", {
+                    connId: socket.id
                 });
             });
-        }   
+        }
     });
 });

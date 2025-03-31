@@ -344,8 +344,11 @@ async function SDPProcess(message,from_connid){
                 }
             }
         });
-        socket.on("inform_other_about_disconnected_user",function(data){
-            $("#"+data.connId).remove();
+        socket.on("inform_other_about_disconnected_user", function(data){
+            console.log("User disconnected: ", data.connId);
+            // First remove the user element
+            $("#" + data.connId).remove();
+            // Then close the connection
             AppProcess.closeConnectionCall(data.connId);
         });
         socket.on("inform_others_about_me",function(data){
@@ -364,7 +367,6 @@ async function SDPProcess(message,from_connid){
         })
     }
     function addUser(other_user_id,connId){
-        console.log(connId);
         var newDivId=$("#otherTemplate").clone();
         newDivId= newDivId.attr("id",connId).addClass("other");
         newDivId.find("h2").text(other_user_id);
