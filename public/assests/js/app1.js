@@ -322,6 +322,7 @@ async function SDPProcess(message,from_connid){
         $("#me h2").text(user_id+"(Me)");
         document.title=user_id;
         event_process_for_signalling_server();
+        eventHandling();
     }
     
     function event_process_for_signalling_server(){
@@ -365,7 +366,34 @@ async function SDPProcess(message,from_connid){
         socket.on("SDPProcess", async function(data){
             await AppProcess.processClientFunc(data.message,data.from_connid);
         })
+        socket.on("showChatMessage",function(data){
+            var time= new Date();
+            var lTime=time.toLocaleString("en-US",{
+                hour:"numeric",
+                minute:"numeric",
+                hour12:true
+            })
+            var div=$("<div>").html("<span class='font-weight-bold mr-3' style='color:black'>"+data.from+"</span>"+lTime+"</br>"+data.message);
+            $("#messages").append(div);
+        });
     }
+    function eventHandling(){
+        $("#btnsend").on("click",function(){
+            var msgData=$("#msgbox").val();
+            socket.emit("sendMessage",msgData);
+            var time= new Date();
+            var lTime=time.toLocaleString("en-US",{
+                hour:"numeric",
+                minute:"numeric",
+                hour12:true
+            })
+            var div=$("<div>").html("<span class='font-weight-bold mr-3' style='color:black'>"+user_id+"</span>"+lTime+"</br>"+msgData);
+            $("#messages").append(div);
+            $("#msgbox").val("");
+        });
+    }
+
+
     function addUser(other_user_id,connId){
         var newDivId=$("#otherTemplate").clone();
         newDivId= newDivId.attr("id",connId).addClass("other");
