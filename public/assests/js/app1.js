@@ -106,17 +106,23 @@ var AppProcess=(function(){
             removeMediaSenders(rtp_vid_senders);
         }
     }
-    async function videoProcess(newVideoState) {
-        if(newVideoState==video_states.None){
-            $("#videoCamOnOff").html("<span class='material-icons' style='width: 100%;'>videocam_off</span>");
-            $("#btnScreenShare").html("<span class='material-icons' style='width: 100%;'>present_to_all</span>");
+    // Fix for the videoProcess function in AppProcess
+
+async function videoProcess(newVideoState) {
+    if(newVideoState==video_states.None){
+        $("#videoCamOnOff").html("<span class='material-icons' style='width: 100%;'>videocam_off</span>");
+        // Fix 3: Ensure "Present Now" text remains visible when camera is off
+        $("#btnScreenShare").html("<span class='material-icons' style='width: 100%;'>present_to_all</span><div>Present Now</div>");
         video_st=newVideoState;
         removeVideoStream(rtp_vid_senders);
-        return;}
-        if(newVideoState==video_states.Camera){
-            $("#videoCamOnOff").html("<span class='material-icons' style='width: 100%;'>videocam_on</span>");
-        }
-        try{
+        return;
+    }
+    
+    if(newVideoState==video_states.Camera){
+        $("#videoCamOnOff").html("<span class='material-icons' style='width: 100%;'>videocam_on</span>");
+    }
+    
+    try{
         var vstream=null;
         if(newVideoState==video_states.Camera){
            
@@ -126,30 +132,44 @@ var AppProcess=(function(){
                     height:1680
                 },audio:false
             });
-        }else if(
-            newVideoState==video_states.ScreenShare
-        ){
+        }else if(newVideoState==video_states.ScreenShare){
            vstream= await navigator.mediaDevices.getDisplayMedia({
                 video:{
                     width:1920,
                     height:1680
                 },audio:false
             });
-        } if(vstream && vstream.getVideoTracks().length>0){
+            vstream.oninactive =(e)=>{
+                removeVideoStream(rtp_vid_senders);
+                // Fix 1 & 2: Maintain proper alignment with text-center class and ensure "Present Now" text is visible
+                $("#btnScreenShare").html("<span class='material-icons' style='width: 100%;'>present_to_all</span><div>Present Now</div>");
+            }
+        } 
+        
+        if(vstream && vstream.getVideoTracks().length>0){
             videoCamTrack=vstream.getVideoTracks()[0];
             if(videoCamTrack){
                 local_div.srcObject=new MediaStream([videoCamTrack]);
                 updateMediaSenders(videoCamTrack,rtp_vid_senders);
             }
-        } }catch(e){
-            console.log(e);
-            return;
         }
-       video_st=newVideoState; 
-       if(newVideoState==video_states.Camera ){
-        
-       }
+    }catch(e){
+        console.log(e);
+        return;
     }
+    
+    video_st=newVideoState; 
+    if(newVideoState==video_states.Camera){
+        $("#videoCamOnOff").html("<span class='material-icons' style='width: 100%;'>videocam</span>");
+        // Fix 1 & 3: Ensure "Present Now" text is visible and properly aligned
+        $("#btnScreenShare").html("<span class='material-icons' style='width: 100%;'>present_to_all</span><div>Present Now</div>");
+    }
+    else if(newVideoState==video_states.ScreenShare){
+        $("#videoCamOnOff").html("<span class='material-icons' style='width: 100%;'>videocam_off</span>");
+        // Fix 1 & 2: Apply text-success class correctly to both span and div elements
+        $("#btnScreenShare").html("<span class='material-icons text-success' style='width: 100%;'>present_to_all</span><div class='text-success'>Stop Present Now</div>");
+    }
+}
     const iceConfiguration = {
         iceServers: [
           {
@@ -219,6 +239,7 @@ async function setOffer(connid){
     await connection.setLocalDescription(offer);
     serverProcess(JSON.stringify({offer:connection.localDescription}),connid)
 }
+
 async function SDPProcess(message,from_connid){
     message=JSON.parse(message);
     if(message.answer){
@@ -243,16 +264,39 @@ async function SDPProcess(message,from_connid){
             }
         }
     }
+    async function closeConnection(connid) {
+        peers_connection_ids[connid]=null;
+        if(peers_connection_ids[connid]){
+            peers_connection[connid].close();
+            peers_connection[connid]=null;
+        }
+        if(remote_aud_stream[connid]){
+            remote_aud_stream[connid].getTracks().forEach((t)=>{
+                if(t.stop) t.stop();
+            })
+            remote_aud_stream[connid]=null;
+        }
+        if(remote_vid_stream[connid]){
+            remote_vid_stream[connid].getTracks().forEach((t)=>{
+                if(t.stop) t.stop();
+            })
+            remote_vid_stream[connid]=null;
+        }
+
+    }
+    
     return{
         setNewConnection:async function(connId){
             await setConnection(connId);
         },
         init:async function(SDP_function,my_connid){
-            _init(SDP_function, my_connid);
+           await  _init(SDP_function, my_connid);
         },
         processClientFunc:async function(data,from_connid){
-            SDPProcess(data,from_connid);
+           await  SDPProcess(data,from_connid);
         },
+        closeConnectionCall:async function(connId){
+           await closeConnection(connId);},
 
     };
 })();
@@ -300,6 +344,10 @@ async function SDPProcess(message,from_connid){
                 }
             }
         });
+        socket.on("inform_other_about_disconnected_user",function(data){
+            $("#"+data.connId).remove();
+            AppProcess.closeConnectionCall(data.connId);
+        });
         socket.on("inform_others_about_me",function(data){
             addUser(data.other_user_id,data.connId);
             AppProcess.setNewConnection(data.connId);
@@ -316,6 +364,7 @@ async function SDPProcess(message,from_connid){
         })
     }
     function addUser(other_user_id,connId){
+        console.log(connId);
         var newDivId=$("#otherTemplate").clone();
         newDivId= newDivId.attr("id",connId).addClass("other");
         newDivId.find("h2").text(other_user_id);
