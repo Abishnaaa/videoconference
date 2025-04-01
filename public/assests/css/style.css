@@ -1,10 +1,13 @@
 body {
-    font-family: robot,lato !important;
+    font-family: Roboto, Lato, sans-serif !important;
     font-size: large;
+    background-color: #F1EFEC;
+    color: #030303;
 }
-ul{
-    list-style-type:none;
-    margin:0;
+
+ul {
+    list-style-type: none;
+    margin: 0;
     padding: 0;
 }
 
@@ -12,47 +15,233 @@ ul{
     height: 43px;
 }
 
+.navbar {
+    background-color: #F1EFEC;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    padding: 10px 20px;
+}
+
 .navbar-brand {
     font-size: 27px;
     padding-left: 10px;
     font-family: 'Lato', sans-serif;
-    color: grey !important;
+    color: #123458 !important;
+    font-weight: 700;
 }
 
-.nav-link{
+.nav-link {
     font-size: 16px;
-    padding: 0 10px;
+    padding: 0 15px;
     font-weight: 600;
-    color: grey !important;
+    color: #123458 !important;
+    transition: all 0.3s ease;
 }
-.active{
-    background-color: #00808047;
-    border-radius:5px;
+
+.nav-link:hover {
+    opacity: 0.8;
 }
-.display-center{
+
+.active {
+    background-color: rgba(212, 201, 190, 0.5);
+    border-radius: 5px;
+}
+
+.display-center {
     display: flex;
     justify-content: center;
     align-items: center;
 }
 
-.people{
+.people {
     height: 390px;
-    border: 25px solid white;
+    border: 25px solid #F1EFEC;
     border-radius: 5px;
-    box-shadow: 1px 1px 5px grey;
+    box-shadow: 1px 1px 15px rgba(3, 3, 3, 0.15);
 }
-textarea:focus, input:focus{
+
+textarea:focus, input:focus {
     outline: none;
 }
 
-.jumbotron{
-    background-color: white;
-
+.jumbotron {
+    background-color: #F1EFEC;
+    margin-top: 80px;
+    padding: 30px;
 }
 
-.cursor-pointer{
+.cursor-pointer {
     cursor: pointer;
-    padding:5px
+    padding: 5px;
+}
+
+.btn-meeting {
+    background-color: #123458;
+    color: #F1EFEC !important;
+    font-weight: bold;
+    padding: 10px 20px;
+    border: none;
+    transition: all 0.3s ease;
+}
+
+.btn-meeting:hover {
+    background-color: #0e2a46;
+}
+
+.btn-join {
+    background-color: #D4C9BE;
+    border: 1px solid #123458;
+    color: #123458 !important;
+    font-weight: bold;
+    padding: 10px 20px;
+}
+
+.btn-join:hover {
+    background-color: #c2b8ab;
+}
+
+.enter-code {
+    border: none;
+    background: transparent;
+    color: #123458;
+    font-weight: 500;
+    width: 150px;
+}
+
+.join-action {
+    color: #123458;
+    font-weight: bold;
+    cursor: pointer;
+    padding: 10px 15px;
+    transition: all 0.3s ease;
+}
+
+.join-action:hover {
+    opacity: 0.8;
+}
+
+h1 {
+    color: #123458;
+    font-weight: 700;
+    margin-bottom: 20px;
+}
+
+p {
+    color: #030303;
+    margin-bottom: 30px;
+}
+
+/* Auth form styles with better centering */
+.auth-container {
+    background-color: #F1EFEC;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    max-width: 380px;
+    margin: 30px auto 0;
+    border: 1px solid #D4C9BE;
+}
+
+.auth-tabs {
+    display: flex;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #D4C9BE;
+}
+
+.auth-tab {
+    flex: 1;
+    background: none;
+    border: none;
+    padding: 10px 15px;
+    font-size: 16px;
+    font-weight: 600;
+    color: #123458;
+    cursor: pointer;
+    opacity: 0.7;
+    transition: all 0.3s ease;
+}
+
+.auth-tab:hover {
+    opacity: 1;
+}
+
+.auth-tab.active {
+    opacity: 1;
+    border-bottom: 3px solid #123458;
+}
+
+.auth-form {
+    padding: 10px 0;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 500;
+    color: #123458;
+}
+
+.form-control {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #D4C9BE;
+    border-radius: 4px;
+    background-color: white;
+    color: #030303;
+    font-size: 14px;
+}
+
+.form-control:focus {
+    border-color: #123458;
+    box-shadow: 0 0 0 2px rgba(18, 52, 88, 0.2);
+}
+
+.form-check {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.form-check-input {
+    margin-right: 8px;
+}
+
+.form-check-label {
+    font-size: 14px;
+    color: #030303;
+}
+
+.forgot-password {
+    color: #123458;
+    font-size: 14px;
+    text-decoration: none;
+}
+
+.forgot-password:hover {
+    text-decoration: underline;
+}
+
+.mt-3 {
+    margin-top: 15px;
+}
+
+.mt-4 {
+    margin-top: 20px;
+}
+
+.mb-3 {
+    margin-bottom: 15px;
+}
+
+.w-100 {
+    width: 100%;
+}
+
+.text-center {
+    text-align: center;
 }
 /*index.html*/
 .home-wrap{
