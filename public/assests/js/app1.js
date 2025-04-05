@@ -457,16 +457,7 @@ async function SDPProcess(message,from_connid){
         display:"block"
        }).html('<div class="top-box align-vertical-middle profile-dialogue-show" style="text-align:center;color:white;"> <h1 class="mt-2">Leave Meeting</h1><hr> <div class="call-leave-cancel-action d-flex justify-content-center align-items-center w-100"> <a href="/action.html"><button class="call-leave-action btn btn-danger mr-5">Leave </button></a> <button class="call-cancel-action btn btn-secondary">Cancel</button> </div> </div>');
      });
-     $(document).mouseup(function(e){
-        var container= new Array();
-        container.push($(".top-box-show"));
-        $.each(container,function(key,value){
-            if(!$(value).is(e.target)&& $(value).has(e.target.length==0)){
-                $(value).empty();
-            }
-        });
-     }) ;
-
+    
      
   
      $(document).on("click",".call-cancel-action",function(){
@@ -630,4 +621,3 @@ async function SDPProcess(message,from_connid){
         },
     };
 })();
-
